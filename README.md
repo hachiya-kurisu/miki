@@ -1,10 +1,16 @@
 # miki
 
-high-stakes ride on the nightfall express
+a nex server for lonely late hours in the city.
+it's that feeling when you're on the first train home.
+the sky is about to light up, but you can't shake that feeling.
+the night won't let go just quite yet...
+
+after all, just think about all the secrets that would be revealed,
+by those golden rays of dawn.
 
 named after miki (美樹) from city hunter
 
-## hop on
+## early morning train to nowhere
 
 first, hit play on GET WILD by TM NETWORK.
 feel the city's pulse kicking in, then... let's get moving.
@@ -18,7 +24,7 @@ $ rcctl enable miki
 $ rcctl start miki
 ```
 
-## enjoy the view
+## still rivers, the unsettling hum of a world that never waits
 
 * miki listens on ::1
 * combine with relayd to share with the world
