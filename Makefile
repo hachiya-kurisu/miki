@@ -7,6 +7,8 @@ CFLAGS += -DVERSION=\"${VERSION}\"
 CFLAGS += -DNAME=\"miki\"
 CFLAGS += -Wall -Wextra -std=c99 -pedantic
 
+LDFLAGS += -lm
+
 PREFIX ?= /usr/local
 MANDIR ?= /share/man
 
