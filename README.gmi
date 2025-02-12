@@ -1,0 +1,25 @@
+# miki
+
+high-stakes ride on the nightfall express
+
+named after miki (美樹) from city hunter
+
+## hop on
+
+```sh
+$ make config.h
+$ vim config.h # tweak to your pleasure
+$ make && make install
+$ rcctl enable miki
+$ rcctl start miki
+```
+
+## enjoy the view
+
+* miki listens on ::1
+* combine with relayd to share with the world
+
+## nex stations
+
+=> nex://nightfall.city/nex nex - the nightfall express
+=> nex://higeki.jp/ 悲劇駅／higeki station
