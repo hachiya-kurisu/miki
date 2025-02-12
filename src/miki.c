@@ -134,7 +134,7 @@ int miki(struct request *req, char *path) {
   if(path[eof]) return problem(req, "we don't go there");
 
   req->time = time(0);
-  if (daytime(&req->time, 35.68)) {
+  if (daytime(&req->time, latitude)) {
     return file(req, "closed.nex");
   }
 
