@@ -23,3 +23,4 @@ $ rcctl start miki
 
 => nex://nightfall.city/nex nex - the nightfall express
 => nex://higeki.jp/ 悲劇駅／higeki station
+=> nex://manatsu.town/ 真夏駅／manatsu station
