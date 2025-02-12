@@ -6,7 +6,7 @@ named after miki (美樹) from city hunter
 
 ## hop on
 
-first, hit pay on GET WILD by TM NETWORK.
+first, hit play on GET WILD by TM NETWORK.
 feel the city's pulse kicking in, then... let's get moving.
 you've got until the song finishes, so no distractions, ok?
 
