@@ -1,14 +1,16 @@
 # miki
 
-a nex server for lonely late hours in the city.
-it's that feeling when you're on the first train home.
-the sky is about to light up, but you can't shake that feeling.
-the night won't let go just quite yet...
+a nex server for lonely late hours in the city
 
-after all, just think about all the secrets that would be revealed,
-by those golden rays of dawn.
+you're on the first train home
+the sky is about to light up, but you can't shake the feeling
+the night won't let go just quite yet...
+after all, think of all the secrets that would be revealed
+by those golden rays of dawn
 
 named after miki (美樹) from city hunter
+
+made for openbsd, might work elsewhere
 
 ## early morning train to nowhere
 
@@ -32,5 +34,6 @@ $ rcctl start miki
 ## nex stations
 
 => nex://nightfall.city/nex nex - the nightfall express
+
 => nex://higeki.jp/ 悲劇駅／higeki station
 => nex://manatsu.town/ 真夏駅／manatsu station
