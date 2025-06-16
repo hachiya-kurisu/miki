@@ -5,7 +5,7 @@ OS != uname -s
 
 CFLAGS += -DVERSION=\"${VERSION}\"
 CFLAGS += -DNAME=\"miki\"
-CFLAGS += -Wall -Wextra -std=c99 -pedantic
+CFLAGS += -Wall -Wextra -std=c99 -pedantic -fsanitize=undefined
 
 LDFLAGS += -lm
 
