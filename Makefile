@@ -5,7 +5,7 @@ OS != uname -s
 
 CFLAGS += -DVERSION=\"${VERSION}\"
 CFLAGS += -DNAME=\"miki\"
-CFLAGS += -Wall -Wextra -std=c99 -pedantic -fsanitize=undefined
+CFLAGS += -Wall -Wextra -std=c99 -pedantic -O2
 
 LDFLAGS += -lm
 
@@ -15,15 +15,19 @@ MANDIR ?= /share/man
 all: miki
 
 config.h:
-	cp config.def.h $@
+	@test -f $@ || cp config.def.h $@
 
-miki: config.h src/miki.c
-	${CC} ${CFLAGS} ${LDFLAGS} -L. -o $@ src/miki.c ${LIBS}
+miki: config.h src/miki.c Makefile
+	${CC} ${CFLAGS} -o $@ src/miki.c ${LDFLAGS} ${LIBS}
 	strip $@
 
 install:
-	install miki ${DESTDIR}${PREFIX}/bin/miki
-	install miki.rc /etc/rc.d/miki
+	install miki -m 755 ${DESTDIR}${PREFIX}/bin/miki
+	install miki.rc -m 644 /etc/rc.d/miki
+
+uninstall:
+	rm -f ${DESTDIR}${PREFIX}/bin/miki
+	rm -f /etc/rc.d/miki
 
 README.md: README.gmi
 	sisyphus -f markdown <README.gmi >README.md
