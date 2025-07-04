@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -16,12 +15,11 @@
 #include <math.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
-#define REQUEST 1027
+#define REQUEST 1028
 #define BUFFER 65536
 
 #ifndef __OpenBSD__
@@ -47,23 +45,28 @@ const char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 struct request {
   int socket;
   time_t time;
-  char *ip;
 };
+
+void die(int eval, const char *msg) {
+  syslog(LOG_ERR, "%s", msg);
+  _exit(eval);
+}
 
 void deliver(int s, char *buf, int len) {
   while(len > 0) {
     ssize_t ret = write(s, buf, len);
-    if(ret == -1) errx(1, "write failed");
+    if(ret == -1) die(1, "write failed");
     buf += ret; len -= ret;
   }
 }
 
 void transfer(struct request *req, int fd) {
-  char buf[BUFFER] = { 0 };
+  char buf[BUFFER] = {0};
   ssize_t len;
-  while((len = read(fd, buf, BUFFER)) != 0) {
+  while((len = read(fd, buf, BUFFER)) > 0) {
     deliver(req->socket, buf, len);
   }
+  if(len == -1) die(1, "read failed");
 }
 
 int daytime(time_t *t, float lat) {
@@ -72,6 +75,8 @@ int daytime(time_t *t, float lat) {
   int day = tm->tm_yday + 1;
   float x = sin(360.0 * (day + 284) / 365.0 * M_PI / 180);
   float y = -tan(lat * M_PI / 180) * tan(23.44 * x * M_PI / 180);
+  if(y < -1) y = -1;
+  if(y > 1) y = 1;
   float hours = 1 / 15.0 * acos(y) * 180 / M_PI;
 
   struct tm *noon = localtime(t);
@@ -85,34 +90,35 @@ int daytime(time_t *t, float lat) {
   return fabs(difftime(*t, noon_t)) <= delta_s;
 }
 
-int problem(struct request *req, char *text) {
-  deliver(req->socket, text, strlen(text));
+int problem(struct request *req, char *msg) {
+  deliver(req->socket, msg, strlen(msg));
   return 0;
 }
 
 int file(struct request *req, char *path) {
   int fd = open(path, O_RDONLY);
-  if(fd == -1) return problem(req, "uhm");
+  if(fd == -1) return problem(req, "not found");
   transfer(req, fd);
   close(fd);
   return 0;
 }
 
 void entry(struct request *req, char *path) {
-  struct stat sb = { 0 };
+  struct stat sb = {0};
   stat(path, &sb);
   double size = sb.st_size / 1000.0;
   char buf[PATH_MAX * 2];
-  int len = snprintf(buf, PATH_MAX * 2, "=> %s [%.2f KB]\n", path, size);
+  int len = snprintf(buf, sizeof(buf), "=> %s [%.2f KB]\n", path, size);
+  if (len >= sizeof(buf)) return;
   deliver(req->socket, buf, len);
 }
 
 int ls(struct request *req, char *path) {
   if(*path == '/') path++;
 
-  chdir(path);
+  if(*path && chdir(path)) return problem(req, "not found");
 
-  struct stat sb = { 0 };
+  struct stat sb = {0};
   stat("index.nex", &sb);
   if(S_ISREG(sb.st_mode))
     return file(req, "index.nex");
@@ -126,6 +132,7 @@ int ls(struct request *req, char *path) {
   for(size_t i = 0; i < res.gl_pathc; i++) {
     entry(req, res.gl_pathv[i]);
   }
+  globfree(&res);
   return 0;
 }
 
@@ -147,13 +154,10 @@ int miki(struct request *req, char *path) {
 
   if(*path == '/') path++;
 
-  struct stat sb = { 0 };
+  struct stat sb = {0};
   stat(path, &sb);
 
   return S_ISREG(sb.st_mode) ? file(req, path) : problem(req, "not found");
-
-  syslog(LOG_INFO, "nex://%s %s", path, req->ip);
-  return 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -171,7 +175,7 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in6 addr;
   int server = socket(AF_INET6, SOCK_STREAM, 0);
 
-  bzero(&addr, sizeof(addr));
+  memset(&addr, 0, sizeof(addr));
   addr.sin6_family = AF_INET6;
   addr.sin6_addr = in6addr_loopback;
   addr.sin6_port = htons(1900);
@@ -188,8 +192,8 @@ int main(int argc, char *argv[]) {
   if(bind(server, (struct sockaddr *) &addr, (socklen_t) sizeof(addr)))
     errx(1, "bind totally failed %d", errno);
 
-  struct group *grp = { 0 };
-  struct passwd *pwd = { 0 };
+  struct group *grp = {0};
+  struct passwd *pwd = {0};
 
   if(group && !(grp = getgrnam(group)))
     errx(1, "group %s not found", group);
@@ -208,10 +212,12 @@ int main(int argc, char *argv[]) {
   if(group && grp && setgid(grp->gr_gid)) errx(1, "setgid failed");
   if(user && pwd && setuid(pwd->pw_uid)) errx(1, "setuid failed");
 
-  if(pledge("stdio inet proc dns rpath getpw unix", 0))
+  if(pledge("stdio inet proc rpath", 0))
     errx(1, "pledge failed");
 
   listen(server, 32);
+
+  signal(SIGCHLD, SIG_IGN);
 
   int sock;
   socklen_t len = sizeof(addr);
@@ -220,21 +226,23 @@ int main(int argc, char *argv[]) {
     if(pid == -1) errx(1, "fork failed");
     if(!pid) {
       close(server);
-      struct request req = { 0 };
-      char path[REQUEST] = { 0 };
-      if(read(sock, path, REQUEST) == -1) {
+      struct request req = {0};
+      char path[REQUEST] = {0};
+      ssize_t n = read(sock, path, REQUEST - 1);
+      if(n <= 0) {
         close(sock);
-        errx(1, "read failed");
+        die(1, "read failed");
       }
+      path[n] = '\0';
       char ip[INET6_ADDRSTRLEN];
       inet_ntop(AF_INET6, &addr, ip, INET6_ADDRSTRLEN);
       req.socket = sock;
-      req.ip = ip;
+      syslog(LOG_INFO, "%s %s", path, ip);
       miki(&req, path);
       close(sock);
+      _exit(0);
     } else {
       close(sock);
-      signal(SIGCHLD, SIG_IGN);
     }
   }
   close(server);
