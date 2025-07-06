@@ -109,7 +109,7 @@ void entry(struct request *req, char *path) {
   double size = sb.st_size / 1000.0;
   char buf[PATH_MAX * 2];
   int len = snprintf(buf, sizeof(buf), "=> %s [%.2f KB]\n", path, size);
-  if (len >= sizeof(buf)) return;
+  if(len >= (int)(sizeof(buf))) return;
   deliver(req->socket, buf, len);
 }
 
@@ -141,7 +141,7 @@ int miki(struct request *req, char *path) {
   if(path[eof]) return problem(req, "we don't go there");
 
   req->time = time(0);
-  if (nocturnal && daytime(&req->time, latitude)) {
+  if(nocturnal && daytime(&req->time, latitude)) {
     return file(req, "closed.nex");
   }
 
@@ -228,12 +228,16 @@ int main(int argc, char *argv[]) {
       close(server);
       struct request req = {0};
       char path[REQUEST] = {0};
-      ssize_t n = read(sock, path, REQUEST - 1);
-      if(n <= 0) {
+      ssize_t bytes = read(sock, path, REQUEST - 1);
+      if(bytes <= 0) {
         close(sock);
-        die(1, "read failed");
+        if(bytes == 0)
+          errx(1, "disconnected");
+        else
+          errx(1, "read failed");
       }
-      path[n] = '\0';
+      path[bytes] = '\0';
+
       char ip[INET6_ADDRSTRLEN];
       inet_ntop(AF_INET6, &addr, ip, INET6_ADDRSTRLEN);
       req.socket = sock;
