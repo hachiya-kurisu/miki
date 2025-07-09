@@ -139,14 +139,13 @@ int ls(struct request *req, char *path) {
 int miki(struct request *req, char *path) {
   size_t eof = strspn(path, valid);
   if(path[eof]) return problem(req, "we don't go there");
+  path[strcspn(path, "\r\n")] = 0;
+  if(!path || !*path) path = "/";
 
   req->time = time(0);
   if(nocturnal && daytime(&req->time, latitude)) {
     return file(req, "closed.nex");
   }
-
-  path[strcspn(path, "\r\n")] = 0;
-  if(!path || !*path) path = "/";
 
   if(path[strlen(path) - 1] == '/') {
     return ls(req, path);
