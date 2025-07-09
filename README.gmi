@@ -37,3 +37,7 @@ $ rcctl start miki
 
 => nex://higeki.jp/ 悲劇駅／higeki station
 => nex://manatsu.town/ 真夏駅／manatsu station
+
+## author
+
+=> https://blekksprut.net/ 蜂谷栗栖
