@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
     .sin6_addr = in6addr_loopback,
     .sin6_port = htons(1900),
   };
-  struct timeval timeout = {10, 0};
+  struct timeval timeout = {3, 0};
   int opt = 1;
   setsockopt(server, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt));
   setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
