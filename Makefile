@@ -5,9 +5,18 @@ OS != uname -s
 
 CFLAGS += -DVERSION=\"${VERSION}\"
 CFLAGS += -DNAME=\"miki\"
-CFLAGS += -Wall -Wextra -std=c99 -pedantic -O2
+CFLAGS += -Wall -Wextra -std=c99 -pedantic -Wformat=2
+CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2
+CFLAGS += -Wshadow -Wcast-align -Wstrict-prototypes
+CFLAGS += -Wwrite-strings -Wconversion -Wformat-security
 
-LDFLAGS += -lm
+LINTFLAGS += --enable=all --inconclusive --language=c --library=posix
+LINTFLAGS += --quiet --suppress=missingIncludeSystem
+LINTFLAGS += --suppress=getpwnamCalled --suppress=getgrnamCalled
+
+LIBS += -lm
+
+.PHONY: all install lint doc push clean again release
 
 PREFIX ?= /usr/local
 MANDIR ?= /share/man
@@ -28,6 +37,9 @@ install:
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/miki
 	rm -f /etc/rc.d/miki
+
+lint:
+	cppcheck ${LINTFLAGS} src/*.c
 
 README.md: README.gmi
 	sisyphus -f markdown <README.gmi >README.md
