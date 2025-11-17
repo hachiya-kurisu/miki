@@ -19,8 +19,6 @@ feel the city's pulse kicking in, then... let's get moving.
 you've got until the song finishes, so no distractions, ok?
 
 ```sh
-$ make config.h
-$ vim config.h # tweak to your pleasure
 $ make && make install
 $ rcctl enable miki
 $ rcctl start miki
@@ -28,8 +26,8 @@ $ rcctl start miki
 
 ## still rivers, the unsettling hum of a world that never waits
 
-* miki listens on ::1
-* combine with relayd to share with the world
+* miki listens on [::1]:1900 unless told otherwise
+* bridge the gap to worlds beyond with relayd
 
 ## nex stations
 
