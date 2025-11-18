@@ -23,10 +23,7 @@ MANDIR ?= /share/man
 
 all: miki
 
-config.h:
-	@test -f $@ || cp config.def.h $@
-
-miki: config.h src/miki.c Makefile
+miki: src/miki.c Makefile
 	${CC} ${CFLAGS} -o $@ src/miki.c ${LDFLAGS} ${LIBS}
 	strip $@
 
