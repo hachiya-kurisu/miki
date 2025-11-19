@@ -71,7 +71,7 @@ static int daytime(const time_t *t, double lat) {
   if(y > 1) y = 1;
   double hours = 1 / 15.0 * acos(y) * 180 / M_PI;
   tm->tm_hour = 12, tm->tm_min = 0, tm->tm_sec = 0;
-  int delta_s = (int)hours * 60 * 60;
+  double delta_s = hours * 60 * 60;
   time_t noon_t = mktime(tm);
   return fabs(difftime(*t, noon_t)) <= delta_s;
 }
