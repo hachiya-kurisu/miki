@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <limits.h>
 #include <netdb.h>
 #include <signal.h>
 #include <syslog.h>
@@ -14,7 +13,6 @@
 #include <glob.h>
 #include <math.h>
 #include <stdio.h>
-#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
