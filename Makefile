@@ -28,8 +28,10 @@ miki: src/miki.c Makefile
 	strip $@
 
 install:
-	install miki -m 755 ${DESTDIR}${PREFIX}/bin/miki
-	install miki.rc -m 644 /etc/rc.d/miki
+	install -d ${DESTDIR}${PREFIX}/bin
+	install -d ${DESTDIR}/etc/rc.d
+	install -m 755 miki ${DESTDIR}${PREFIX}/bin/miki
+	install -m 555 miki.rc /etc/rc.d/miki
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/miki
