@@ -24,6 +24,18 @@ $ rcctl enable miki
 $ rcctl start miki
 ```
 
+## finding your way
+
+miki sleeps when the sun is up, tokyo time.
+stay awake with -c.
+let us know where you're at -l <latitude> and -m <longitude>.
+
+need more help?
+
+```sh
+$ miki -h
+```
+
 ## still rivers, the unsettling hum of a world that never waits
 
 * miki listens on [::1]:1900 unless told otherwise
