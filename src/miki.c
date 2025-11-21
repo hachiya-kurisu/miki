@@ -11,7 +11,6 @@
 #include <pwd.h>
 #include <err.h>
 #include <glob.h>
-#include <math.h>
 #include <stdio.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -19,6 +18,8 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+
+#include "daytime.c"
 
 #define REQUEST 1028
 #define BUFFER 65536
@@ -38,13 +39,14 @@ const char *notfound = "not found";
 int debug = 0;
 int nocturnal = 1;
 double latitude = 35.68;
+double longitude = 139.77;
 
 const char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                     "abcdefghijklmnopqrstuvwxyz0123456789"
                     " -._~:/?#[]@!$&'()*+,;=%\r\n";
 
-const char *flags = "[-dh] [-u user] [-g group] [-a address] [-p port] "
-                    "[-r root] [-l latitude]";
+const char *flags = "[-cdh] [-u user] [-g group] [-a address] [-p port] "
+                    "[-r root] [-l latitude] [-m longitude]";
 
 static void die(int eval, const char *msg) {
   syslog(LOG_ERR, "%s", msg);
@@ -57,23 +59,6 @@ static void deliver(int server, const char *buf, ssize_t len) {
     if(ret == -1) die(1, "write failed");
     buf += ret; len -= ret;
   }
-}
-
-static int daytime(const time_t *t, double lat) {
-  struct tm tms;
-  struct tm *tm = localtime_r(t, &tms);
-  if(!tm) die(1, "outside of time and space");
-
-  int day = tm->tm_yday + 1;
-  double x = sin(360.0 * (day + 284) / 365.0 * M_PI / 180);
-  double y = -tan(lat * M_PI / 180) * tan(23.44 * x * M_PI / 180);
-  if(y < -1) y = -1;
-  if(y > 1) y = 1;
-  double hours = 1 / 15.0 * acos(y) * 180 / M_PI;
-  tm->tm_hour = 12, tm->tm_min = 0, tm->tm_sec = 0;
-  double delta_s = hours * 60 * 60;
-  time_t noon_t = mktime(tm);
-  return fabs(difftime(*t, noon_t)) <= delta_s;
 }
 
 static int problem(int socket, const char *msg) {
@@ -125,7 +110,8 @@ static int miki(int socket, char *path) {
   path[strcspn(path, "\r\n")] = 0;
   if(!*path) strlcpy(path, "/", REQUEST);
   time_t now = time(0);
-  if(nocturnal && daytime(&now, latitude)) return file(socket, "closed.nex");
+  if(nocturnal && daytime(&now, latitude, longitude))
+    return file(socket, "closed.nex");
   if(path[strlen(path) - 1] == '/') return ls(socket, path);
   if(*path == '/') path++;
   struct stat sb;
@@ -139,19 +125,22 @@ static void usage(const char *name) {
 
 static void help(const char *name) {
   usage(name);
-
-  fprintf(stderr, "-d - debug mode - don't daemonize\n");
-  fprintf(stderr, "-u user - setuid to user\n");
-  fprintf(stderr, "-g group - setgid to group\n");
-  fprintf(stderr, "-a address - listen on address\n");
-  fprintf(stderr, "-a port - listen on port\n");
-  fprintf(stderr, "-r root - nex root\n");
+  fprintf(stderr, "-c (cathemeral - try to stay awake)\n");
+  fprintf(stderr, "-d (debug - don't daemonize)\n");
+  fprintf(stderr, "-u user (default: www)\n");
+  fprintf(stderr, "-g group (default: www)\n");
+  fprintf(stderr, "-a address (default: ::1)\n");
+  fprintf(stderr, "-a port (default: 1900)\n");
+  fprintf(stderr, "-r root (default: /var/nex)\n");
+  fprintf(stderr, "-l latitude (default: 35.68)\n");
+  fprintf(stderr, "-m longitude (default: 139.77)\n");
 }
 
 int main(int argc, char *argv[]) {
   int c;
-  while((c = getopt(argc, argv, "dhu:g:a:p:r:l:")) != -1) {
+  while((c = getopt(argc, argv, "cdhu:g:a:p:r:l:m:")) != -1) {
     switch(c) {
+      case 'c': nocturnal = 0; break;
       case 'd': debug = 1; break;
       case 'u': user = optarg; break;
       case 'g': group = optarg; break;
@@ -159,6 +148,7 @@ int main(int argc, char *argv[]) {
       case 'p': port = optarg; break;
       case 'r': root = optarg; break;
       case 'l': latitude = mustdouble(optarg, "invalid latitude"); break;
+      case 'm': longitude = mustdouble(optarg, "invalid longitude"); break;
       case 'h': help(argv[0]); exit(0);
       default: usage(argv[0]); exit(0);
     }
@@ -241,7 +231,7 @@ int main(int argc, char *argv[]) {
       ssize_t bytes = read(sock, path, REQUEST - 1);
       if(bytes <= 0) {
         close(sock);
-        errx(1, bytes == 0 ? "disconnected" : "read failed");
+        die(1, bytes == 0 ? "disconnected" : "read failed");
       }
       path[bytes] = '\0';
 
