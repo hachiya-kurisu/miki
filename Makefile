@@ -1,4 +1,4 @@
-VERSION = 0.4
+VERSION = 0.5
 OS != uname -s
 
 -include Makefile.$(OS)
@@ -44,6 +44,11 @@ README.md: README.gmi
 	sisyphus -f markdown <README.gmi >README.md
 
 doc: README.md
+
+test:
+	@${CC} ${CFLAGS} ${LDFLAGS} -o daytime_test src/daytime_test.c ${LIBS}
+	@./daytime_test
+	@rm -f daytime_test
 
 push:
 	got send
