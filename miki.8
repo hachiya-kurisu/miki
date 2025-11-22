@@ -1,0 +1,73 @@
+.Dd $Mdocdate$
+.Dt MIKI 8
+.Os
+.Sh NAME
+.Nm miki
+.Nd a nex server for lonely late hours in the city
+.Sh SYNOPSIS
+.Nm miki
+.Op Fl cd
+.Op Fl a Ar address
+.Op Fl g Ar group
+.Op Fl l Ar latitude
+.Op Fl m Ar longitude
+.Op Fl p Ar port
+.Op Fl r Ar root
+.Op Fl u Ar user
+.Sh DESCRIPTION
+you're on the first train home
+the sky is about to light up, but you can't shake the feeling
+the night won't let go just quite yet...
+after all, think of all the secrets that would be revealed
+by those golden rays of dawn
+.Pp
+.Nm
+sleeps when the sun is up, tokyo time
+.Pp
+the options are as follows:
+.Bl -tag -width Ds
+.It Fl a Ar address
+defaults to
+.Dq ::1
+.It Fl c
+cathemeral mode - some nights never end
+.It Fl d
+don't daemonize
+.It Fl g Ar group
+become
+.Ar group
+- defaults to
+.Dq www
+.It Fl l Ar latitude
+tell miki where you are
+defaults to
+.Dq 35.68
+\(em tokyo
+.It Fl m Ar longitude
+defaults to
+.Dq 139.77
+\(em tokyo
+.It Fl p Ar port
+defaults to 1900
+.It Fl r Ar root
+defaults to
+.Pa /var/nex
+.It Fl u Ar user
+become
+.Ar user
+- defaults to
+.Dq www
+.El
+.Sh FILES
+.Bl -tag -width "/var/nex/closed.nex" -compact
+.It Pa /var/nex
+default root directory
+.It Ar root Ns Pa /closed.nex
+served during daylight hours
+.El
+.Sh EXIT STATUS
+the
+.Nm
+utility exits 0 on success, >0 on error
+.Sh AUTHORS
+named after miki from city hunter
