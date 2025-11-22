@@ -1,0 +1,4 @@
+bin/miki
+man/man8/miki.8
+@cwd /
+etc/rc.d/miki

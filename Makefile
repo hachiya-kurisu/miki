@@ -16,7 +16,7 @@ LINTFLAGS += --suppress=getpwnamCalled --suppress=getgrnamCalled
 
 LIBS += -lm
 
-.PHONY: all install lint doc push clean again release
+.PHONY: all install lint doc push clean again release pkg
 
 PREFIX ?= /usr/local
 MANDIR ?= /usr/local/man
@@ -33,11 +33,28 @@ install:
 	install -d ${DESTDIR}${MANDIR}/man8
 	install -m 644 miki.8 ${DESTDIR}${MANDIR}/man8/miki.8
 	install -m 755 miki ${DESTDIR}${PREFIX}/bin/miki
-	install -m 555 miki.rc /etc/rc.d/miki
+	install -m 555 miki.rc ${DESTDIR}/etc/rc.d/miki
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/miki
-	rm -f /etc/rc.d/miki
+	rm -f ${DESTDIR}${MANDIR}/man8/miki.8
+	rm -f ${DESTDIR}/etc/rc.d/miki
+
+pkg:
+	@[ `uname` = OpenBSD ] || { echo "requires openbsd"; exit 1; }
+	rm -rf /tmp/pkg
+	make install DESTDIR=/tmp/pkg PREFIX=/usr/local
+	pkg_create \
+		-D COMMENT="nex server for lonely late hours in the city" \
+		-D MAINTAINER="kurisu@blekksprut.net" \
+		-D HOMEPAGE="https://blekksprut.net/miki" \
+		-D FULLPKGPATH=net/miki \
+		-D FULLPKGNAME=miki-${VERSION} \
+		-d pkg/DESCR \
+		-f pkg/PLIST \
+		-B /tmp/pkg \
+		-p /usr/local \
+		miki-${VERSION}.tgz
 
 lint:
 	cppcheck ${LINTFLAGS} src/*.c
@@ -55,11 +72,16 @@ test:
 push:
 	got send
 	git push github
- 
+
 clean:
 	rm -f miki
 
 again: clean all
 
-release: push
+release:
+	if [ `uname` = OpenBSD ]; then \
+		$(MAKE) pkg && \
+		cp miki-${VERSION}.tgz /var/www/blekksprut.net/miki/ && \
+		ln -sf miki-${VERSION}.tgz /var/www/blekksprut.net/miki/miki-latest.tgz; \
+	fi
 	git push github --tags
