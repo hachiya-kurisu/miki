@@ -45,7 +45,7 @@ const char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                     "abcdefghijklmnopqrstuvwxyz0123456789"
                     " -._~:/?#[]@!$&'()*+,;=%\r\n";
 
-const char *flags = "[-cdh] [-u user] [-g group] [-a address] [-p port] "
+const char *flags = "[-cd] [-u user] [-g group] [-a address] [-p port] "
                     "[-r root] [-l latitude] [-m longitude]";
 
 static void die(int eval, const char *msg) {
@@ -123,22 +123,9 @@ static void usage(const char *name) {
   fprintf(stderr, "usage: %s %s\n", name, flags);
 }
 
-static void help(const char *name) {
-  usage(name);
-  fprintf(stderr, "-c (cathemeral - try to stay awake)\n");
-  fprintf(stderr, "-d (debug - don't daemonize)\n");
-  fprintf(stderr, "-u user (default: www)\n");
-  fprintf(stderr, "-g group (default: www)\n");
-  fprintf(stderr, "-a address (default: ::1)\n");
-  fprintf(stderr, "-a port (default: 1900)\n");
-  fprintf(stderr, "-r root (default: /var/nex)\n");
-  fprintf(stderr, "-l latitude (default: 35.68)\n");
-  fprintf(stderr, "-m longitude (default: 139.77)\n");
-}
-
 int main(int argc, char *argv[]) {
   int c;
-  while((c = getopt(argc, argv, "cdhu:g:a:p:r:l:m:")) != -1) {
+  while((c = getopt(argc, argv, "cdu:g:a:p:r:l:m:")) != -1) {
     switch(c) {
       case 'c': nocturnal = 0; break;
       case 'd': debug = 1; break;
@@ -149,7 +136,6 @@ int main(int argc, char *argv[]) {
       case 'r': root = optarg; break;
       case 'l': latitude = mustdouble(optarg, "invalid latitude"); break;
       case 'm': longitude = mustdouble(optarg, "invalid longitude"); break;
-      case 'h': help(argv[0]); exit(0);
       default: usage(argv[0]); exit(0);
     }
   }
