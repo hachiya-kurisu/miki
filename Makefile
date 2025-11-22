@@ -40,7 +40,7 @@ uninstall:
 	rm -f ${DESTDIR}${MANDIR}/man8/miki.8
 	rm -f ${DESTDIR}/etc/rc.d/miki
 
-pkg:
+pkg: miki
 	@[ `uname` = OpenBSD ] || { echo "requires openbsd"; exit 1; }
 	rm -rf /tmp/pkg
 	make install DESTDIR=/tmp/pkg PREFIX=/usr/local
