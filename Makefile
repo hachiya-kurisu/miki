@@ -19,7 +19,7 @@ LIBS += -lm
 .PHONY: all install lint doc push clean again release
 
 PREFIX ?= /usr/local
-MANDIR ?= /share/man
+MANDIR ?= /usr/local/man
 
 all: miki
 
@@ -30,6 +30,8 @@ miki: src/miki.c Makefile
 install:
 	install -d ${DESTDIR}${PREFIX}/bin
 	install -d ${DESTDIR}/etc/rc.d
+	install -d ${DESTDIR}${MANDIR}/man8
+	install -m 644 miki.8 ${DESTDIR}${MANDIR}/man8/miki.8
 	install -m 755 miki ${DESTDIR}${PREFIX}/bin/miki
 	install -m 555 miki.rc /etc/rc.d/miki
 
