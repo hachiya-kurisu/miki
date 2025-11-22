@@ -4,18 +4,21 @@
 
 #include "daytime.c"
 
-void settz(const char *tz) {
+static void settz(const char *tz) {
   setenv("TZ", tz, 1);
   tzset();
 }
 
-void test(const char *id, const char *ts, double lat, double lon, int want) {
+static void
+test(const char *id, const char *when, double lat, double lon, int want)
+{
   struct tm tm = {0};
-  strptime(ts, "%Y-%m-%d %H:%M", &tm);
+  strptime(when, "%Y-%m-%d %H:%M", &tm);
   tm.tm_isdst = -1;
   time_t t = mktime(&tm);
   int day = daytime(&t, lat, lon);
-  printf("%s %s, %s %s\n", day == want ? "🙆️" : "🙅", id, ts, day ? "☀️" : "🌙");
+  const char *result = day == want ? "🙆️" : "🙅";
+  printf("%s %s, %s %s\n", result, id, when, day ? "☀️" : "🌙");
 }
 
 int main(void) {
