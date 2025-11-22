@@ -1,6 +1,6 @@
 VERSION = 0.5
 OS != uname -s
-KEY ?= ~/.signify/blekksprut.sec
+KEY ?= ~/.signify/blekksprut-pkg.sec
 
 -include Makefile.$(OS)
 
