@@ -33,7 +33,7 @@ let us know where you're at -l <latitude> and -m <longitude>.
 need more help?
 
 ```sh
-$ miki -h
+$ man 8 miki
 ```
 
 ## still rivers, the unsettling hum of a world that never waits
