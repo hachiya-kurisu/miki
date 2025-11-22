@@ -19,7 +19,7 @@ feel the city's pulse kicking in, then... let's get moving.
 you've got until the song finishes, so no distractions, ok?
 
 ```sh
-$ make && make install
+$ pkg_add -D unsigned https://blekksprut.net/pkg/miki
 $ rcctl enable miki
 $ rcctl start miki
 ```
