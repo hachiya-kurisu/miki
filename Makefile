@@ -1,5 +1,6 @@
 VERSION = 0.5
 OS != uname -s
+KEY ?= ~/.signify/blekksprut.sec
 
 -include Makefile.$(OS)
 
@@ -16,7 +17,7 @@ LINTFLAGS += --suppress=getpwnamCalled --suppress=getgrnamCalled
 
 LIBS += -lm
 
-.PHONY: all install lint doc push clean again release pkg
+.PHONY: all install lint doc push clean again release sign pkg
 
 PREFIX ?= /usr/local
 MANDIR ?= /usr/local/man
@@ -75,13 +76,18 @@ push:
 
 clean:
 	rm -f miki
+	rm -rf signed/
 
 again: clean all
 
+sign: pkg
+	mkdir -p signed/
+	pkg_sign -s signify2 -s ${KEY} -o signed/ miki-${VERSION}.tgz
+
 release:
 	if [ `uname` = OpenBSD ]; then \
-		$(MAKE) pkg && \
+		$(MAKE) sign && \
 		mkdir -p /var/www/blekksprut.net/pkg && \
-		cp miki-${VERSION}.tgz /var/www/blekksprut.net/pkg/; \
+		cp signed/miki-${VERSION}.tgz /var/www/blekksprut.net/pkg/; \
 	fi
 	git push github --tags
