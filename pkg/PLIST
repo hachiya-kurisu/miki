@@ -1,3 +1,4 @@
+@mandir /usr/local/man
 bin/miki
 man/man8/miki.8
 @cwd /
