@@ -81,7 +81,7 @@ again: clean all
 release:
 	if [ `uname` = OpenBSD ]; then \
 		$(MAKE) pkg && \
-		mkdir -p /var/www/blekksprut.net/pkg
+		mkdir -p /var/www/blekksprut.net/pkg && \
 		cp miki-${VERSION}.tgz /var/www/blekksprut.net/pkg/ && \
 	fi
 	git push github --tags
