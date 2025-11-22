@@ -24,6 +24,14 @@ $ rcctl enable miki
 $ rcctl start miki
 ```
 
+or trust blekksprut.net...
+
+```
+$ cd /etc/signify
+$ ftp https://blekksprut.net/pkg/blekksprut-pkg.pub
+$ pkg_add https://blekksprut.net/pkg/miki
+```
+
 ## finding your way
 
 miki sleeps when the sun is up, tokyo time.
