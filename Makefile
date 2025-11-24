@@ -10,6 +10,7 @@ CFLAGS += -Wall -Wextra -std=c99 -pedantic -Wformat=2
 CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2
 CFLAGS += -Wshadow -Wcast-align -Wstrict-prototypes
 CFLAGS += -Wwrite-strings -Wconversion -Wformat-security
+CFLAGS += -Wmissing-prototypes -Wold-style-definition
 
 LINTFLAGS += --enable=all --inconclusive --language=c --library=posix
 LINTFLAGS += --quiet --suppress=missingIncludeSystem
@@ -17,10 +18,10 @@ LINTFLAGS += --suppress=getpwnamCalled --suppress=getgrnamCalled
 
 LIBS += -lm
 
-.PHONY: all install lint doc push clean again release sign pkg
-
 PREFIX ?= /usr/local
 MANDIR ?= /usr/local/man
+
+.PHONY: all install lint doc push clean again release sign pkg
 
 all: miki
 
@@ -28,7 +29,7 @@ miki: src/miki.c Makefile
 	${CC} ${CFLAGS} -o $@ src/miki.c ${LDFLAGS} ${LIBS}
 	strip $@
 
-install:
+install: miki
 	install -d ${DESTDIR}${PREFIX}/bin
 	install -d ${DESTDIR}/etc/rc.d
 	install -d ${DESTDIR}${MANDIR}/man8
