@@ -193,8 +193,7 @@ int main(int argc, char *argv[]) {
 #ifdef __OpenBSD__
   if(!debug) daemon(1, 0);
   if(unveil(root, "r")) errx(1, "unveil failed");
-  if(pledge("stdio inet proc rpath", 0))
-    errx(1, "pledge failed");
+  if(pledge("stdio inet proc rpath", 0)) errx(1, "pledge failed");
 #endif
 
   if(listen(server, backlog)) errx(1, "listen failed");
