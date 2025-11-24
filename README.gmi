@@ -36,7 +36,7 @@ $ pkg_add https://blekksprut.net/pkg/miki
 
 miki sleeps when the sun is up, tokyo time.
 stay awake with -c.
-let us know where you're at -l <latitude> and -m <longitude>.
+let miki know where you're at -l <latitude> and -m <longitude>.
 
 need more help?
 
