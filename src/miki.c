@@ -34,8 +34,6 @@ const char *group = "www";
 const char *addr = "::1";
 const char *port = "1900";
 
-const char *notfound = "not found";
-
 int debug = 0;
 int nocturnal = 1;
 double latitude = 35.68;
@@ -66,9 +64,13 @@ static int problem(int socket, const char *msg) {
   return 0;
 }
 
+static int notfound(int socket) {
+  return problem(socket, "not found");
+}
+
 static int file(int socket, const char *path) {
   int fd = open(path, O_RDONLY);
-  if(fd == -1) return problem(socket, notfound);
+  if(fd == -1) return notfound(socket);
   char buf[BUFFER];
   ssize_t ret;
   while((ret = read(fd, buf, BUFFER)) > 0)
@@ -80,13 +82,13 @@ static int file(int socket, const char *path) {
 
 static int ls(int socket, const char *path) {
   if(*path == '/') path++;
-  if(*path && chdir(path)) return problem(socket, notfound);
+  if(*path && chdir(path)) return notfound(socket);
   struct stat sb;
   if(!stat("index.nex", &sb) && S_ISREG(sb.st_mode))
     return file(socket, "index.nex");
   glob_t res;
   if(glob("*", GLOB_MARK, 0, &res)) {
-    return problem(socket, notfound);
+    return notfound(socket);
   }
   for(size_t i = 0; i < res.gl_pathc; i++) {
     deliver(socket, "=> ", 3);
@@ -115,8 +117,8 @@ static int miki(int socket, char *path) {
   if(path[strlen(path) - 1] == '/') return ls(socket, path);
   if(*path == '/') path++;
   struct stat sb;
-  if(stat(path, &sb) == -1) return problem(socket, notfound);
-  return S_ISREG(sb.st_mode) ? file(socket, path) : problem(socket, notfound);
+  if(stat(path, &sb) == -1) return notfound(socket);
+  return S_ISREG(sb.st_mode) ? file(socket, path) : notfound(socket);
 }
 
 static void usage(const char *name) {
